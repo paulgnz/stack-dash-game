@@ -14,21 +14,21 @@ function getTrailColor(combo: number): string {
 }
 
 export function DashTrail() {
-  const lineRef = useRef<THREE.Line>(null);
-  const materialRef = useRef<THREE.LineBasicMaterial>(null);
-  const points = useRef<number[]>([]); // flat array [x,y,z, x,y,z, ...]
+  const points = useRef<number[]>([]);
   const phase = useGameStore((s) => s.phase);
 
-  const geometry = useMemo(() => {
+  const { geometry, lineObj } = useMemo(() => {
     const geo = new THREE.BufferGeometry();
     const posArray = new Float32Array(MAX_TRAIL_POINTS * 3);
     geo.setAttribute("position", new THREE.BufferAttribute(posArray, 3));
     geo.setDrawRange(0, 0);
-    return geo;
+    const mat = new THREE.LineBasicMaterial({ color: "#00ffcc", transparent: true, opacity: 0 });
+    const obj = new THREE.Line(geo, mat);
+    return { geometry: geo, lineObj: obj };
   }, []);
 
   useFrame(() => {
-    if (!lineRef.current || !materialRef.current) return;
+    const mat = lineObj.material as THREE.LineBasicMaterial;
 
     if (phase !== "playing") {
       points.current = [];
@@ -60,18 +60,9 @@ export function DashTrail() {
     geometry.setDrawRange(0, Math.floor(points.current.length / 3));
 
     // Update color and opacity based on combo
-    materialRef.current.color.set(getTrailColor(combo));
-    materialRef.current.opacity = Math.min(1, combo * 0.15);
+    mat.color.set(getTrailColor(combo));
+    mat.opacity = Math.min(1, combo * 0.15);
   });
 
-  return (
-    <threeLine ref={lineRef} geometry={geometry}>
-      <lineBasicMaterial
-        ref={materialRef}
-        color="#00ffcc"
-        transparent
-        opacity={0}
-      />
-    </threeLine>
-  );
+  return <primitive object={lineObj} />;
 }
