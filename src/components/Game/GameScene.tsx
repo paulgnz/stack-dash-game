@@ -1,10 +1,11 @@
 import { useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { Physics, RigidBody } from "@react-three/rapier";
+import { Physics } from "@react-three/rapier";
 import { Suspense } from "react";
 import { Vector3 } from "three";
 import { Player, playerPositionRef } from "./Player";
 import { BlockStack } from "./BlockStack";
+import { Track } from "./Track";
 import { useGameStore } from "../../stores/gameStore";
 
 function CameraFollow() {
@@ -30,17 +31,6 @@ function CameraFollow() {
   return null;
 }
 
-function Ground() {
-  return (
-    <RigidBody type="fixed" colliders="cuboid">
-      <mesh position={[0, -0.5, -200]} receiveShadow>
-        <boxGeometry args={[4, 1, 500]} />
-        <meshStandardMaterial color="#1a1a2e" />
-      </mesh>
-    </RigidBody>
-  );
-}
-
 export function GameScene() {
   return (
     <Suspense fallback={null}>
@@ -50,7 +40,7 @@ export function GameScene() {
         <CameraFollow />
         <Player />
         <BlockStack />
-        <Ground />
+        <Track />
       </Physics>
     </Suspense>
   );
