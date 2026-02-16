@@ -1,6 +1,6 @@
 import { useRef, useEffect, useCallback } from "react";
 import { useFrame } from "@react-three/fiber";
-import { RigidBody } from "@react-three/rapier";
+import { RigidBody, BallCollider } from "@react-three/rapier";
 import type { RapierRigidBody } from "@react-three/rapier";
 import { Vector3, MathUtils, Group } from "three";
 import { useGameStore, LANE_WIDTH } from "../../stores/gameStore";
@@ -264,6 +264,7 @@ export function Player() {
       enabledRotations={[false, false, false]}
       name="player"
     >
+      <BallCollider args={[0.35]} position={[0, 0.35, 0]} />
       <group ref={groupRef}>
         {/* Capsule body */}
         <mesh castShadow position={[0, 0.5, 0]}>
