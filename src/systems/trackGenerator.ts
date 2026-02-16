@@ -1,5 +1,7 @@
 import { SeededRandom } from "../utils/seededRandom";
 
+// ── Legacy types (kept for backward compatibility with existing components) ──
+
 export type SegmentType =
   | "platform"
   | "gap"
@@ -12,16 +14,15 @@ export type SegmentType =
 
 export interface TrackSegment {
   type: SegmentType;
-  z: number; // start z position (negative = forward)
+  z: number;
   length: number;
   width: number;
-  height?: number; // for tunnels
-  speed?: number; // for moving walls
-  direction?: [number, number, number]; // for wind
+  height?: number;
+  speed?: number;
+  direction?: [number, number, number];
 }
 
-// Which obstacles unlock at which cumulative distance
-const OBSTACLE_UNLOCK: Record<SegmentType, number> = {
+const SEGMENT_UNLOCK: Record<SegmentType, number> = {
   platform: 0,
   gap: 0,
   tunnel: 30,
@@ -42,12 +43,10 @@ export function generateTrackSegments(
   let z = fromZ;
 
   while (z < toZ) {
-    // Determine available obstacle types based on distance
-    const available = (Object.entries(OBSTACLE_UNLOCK) as [SegmentType, number][])
+    const available = (Object.entries(SEGMENT_UNLOCK) as [SegmentType, number][])
       .filter(([, dist]) => Math.abs(fromZ) >= dist)
       .map(([type]) => type);
 
-    // Weighted selection: platforms are more common
     const weights: Record<string, number> = { platform: 5 };
     const pool: SegmentType[] = [];
     for (const type of available) {
@@ -70,4 +69,91 @@ export function generateTrackSegments(
   }
 
   return segments;
+}
+
+// ── New obstacle-based track generator ──
+
+export type ObstacleType =
+  | "barrier"
+  | "low_bar"
+  | "gap"
+  | "double_barrier"
+  | "overhead"
+  | "moving_barrier";
+
+export interface Obstacle {
+  type: ObstacleType;
+  z: number;
+  lanes: number[];
+  speed?: number;
+}
+
+const OBSTACLE_UNLOCK: Record<ObstacleType, number> = {
+  barrier: 0,
+  low_bar: 0,
+  gap: 50,
+  double_barrier: 100,
+  overhead: 200,
+  moving_barrier: 400,
+};
+
+const ALL_LANES = [-1, 0, 1] as const;
+
+const MIN_GAP = 8;
+const MAX_EXTRA_GAP = 6;
+const INITIAL_OFFSET = 15;
+
+function getAvailableTypes(z: number): ObstacleType[] {
+  return (Object.entries(OBSTACLE_UNLOCK) as [ObstacleType, number][])
+    .filter(([, threshold]) => z >= threshold)
+    .map(([type]) => type);
+}
+
+function createObstacle(type: ObstacleType, z: number, rng: SeededRandom): Obstacle {
+  switch (type) {
+    case "barrier":
+      return { type, z, lanes: [rng.pick([...ALL_LANES])] };
+
+    case "low_bar":
+      return { type, z, lanes: [rng.pick([...ALL_LANES])] };
+
+    case "gap":
+      return { type, z, lanes: [rng.pick([...ALL_LANES])] };
+
+    case "overhead":
+      return { type, z, lanes: [rng.pick([...ALL_LANES])] };
+
+    case "double_barrier": {
+      const safeLane = rng.pick([...ALL_LANES]);
+      const blocked = ALL_LANES.filter((l) => l !== safeLane);
+      return { type, z, lanes: [...blocked] };
+    }
+
+    case "moving_barrier": {
+      const speed = rng.range(1, 3);
+      return { type, z, lanes: [rng.pick([...ALL_LANES])], speed };
+    }
+  }
+}
+
+export function generateObstacles(
+  seed: number,
+  fromZ: number,
+  toZ: number
+): Obstacle[] {
+  const rng = new SeededRandom(seed + Math.floor(fromZ));
+  const obstacles: Obstacle[] = [];
+  let z = fromZ + INITIAL_OFFSET;
+
+  while (z <= toZ) {
+    const available = getAvailableTypes(z);
+    const type = rng.pick(available);
+    const obstacle = createObstacle(type, z, rng);
+    obstacles.push(obstacle);
+
+    const extraGap = rng.range(0, MAX_EXTRA_GAP);
+    z += MIN_GAP + extraGap;
+  }
+
+  return obstacles;
 }
