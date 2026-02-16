@@ -1,11 +1,12 @@
 import { Canvas } from "@react-three/fiber";
 import { GameScene } from "./components/Game/GameScene";
 import { HUD } from "./components/UI/HUD";
+import { MainMenu } from "./components/UI/MainMenu";
+import { DeathScreen } from "./components/UI/DeathScreen";
 import { useGameStore } from "./stores/gameStore";
 
 export default function App() {
   const phase = useGameStore((s) => s.phase);
-  const start = useGameStore((s) => s.start);
 
   return (
     <div
@@ -26,68 +27,8 @@ export default function App() {
       </Canvas>
 
       {phase === "playing" && <HUD />}
-
-      {/* Temporary start button - will be replaced by MainMenu in Task 10 */}
-      {phase === "menu" && (
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <button
-            onClick={start}
-            style={{
-              padding: "20px 40px",
-              fontSize: "24px",
-              background: "#00ffcc",
-              border: "none",
-              borderRadius: "12px",
-              cursor: "pointer",
-              fontWeight: "bold",
-            }}
-          >
-            START
-          </button>
-        </div>
-      )}
-
-      {phase === "dead" && (
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "white",
-            gap: "20px",
-          }}
-        >
-          <h1>GAME OVER</h1>
-          <p>Score: {useGameStore.getState().finalScore}</p>
-          <button
-            onClick={() => {
-              useGameStore.getState().reset();
-            }}
-            style={{
-              padding: "16px 32px",
-              fontSize: "20px",
-              background: "#00ffcc",
-              border: "none",
-              borderRadius: "12px",
-              cursor: "pointer",
-              fontWeight: "bold",
-            }}
-          >
-            AGAIN
-          </button>
-        </div>
-      )}
+      {phase === "menu" && <MainMenu />}
+      {phase === "dead" && <DeathScreen />}
     </div>
   );
 }
