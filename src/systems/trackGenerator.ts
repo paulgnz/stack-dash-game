@@ -99,9 +99,9 @@ const OBSTACLE_UNLOCK: Record<ObstacleType, number> = {
 
 const ALL_LANES = [-1, 0, 1] as const;
 
-const MIN_GAP = 8;
-const MAX_EXTRA_GAP = 6;
-const INITIAL_OFFSET = 15;
+const MIN_GAP = 12;
+const MAX_EXTRA_GAP = 8;
+const INITIAL_OFFSET = 20;
 
 function getAvailableTypes(z: number): ObstacleType[] {
   return (Object.entries(OBSTACLE_UNLOCK) as [ObstacleType, number][])
@@ -144,15 +144,30 @@ export function generateObstacles(
   const rng = new SeededRandom(seed + Math.floor(fromZ));
   const obstacles: Obstacle[] = [];
   let z = fromZ + INITIAL_OFFSET;
+  let lastType: ObstacleType | null = null;
 
   while (z <= toZ) {
-    const available = getAvailableTypes(z);
+    let available = getAvailableTypes(z);
+
+    // Prevent back-to-back double_barriers (impossible to dodge)
+    if (lastType === "double_barrier") {
+      available = available.filter((t) => t !== "double_barrier");
+    }
+
+    // Early game: only simple obstacles for the first 30 units
+    if (z < 30) {
+      available = available.filter((t) => t === "barrier" || t === "low_bar");
+    }
+
     const type = rng.pick(available);
     const obstacle = createObstacle(type, z, rng);
     obstacles.push(obstacle);
+    lastType = type;
 
+    // More space after double_barriers so player can reposition
     const extraGap = rng.range(0, MAX_EXTRA_GAP);
-    z += MIN_GAP + extraGap;
+    const gap = type === "double_barrier" ? MIN_GAP + 6 : MIN_GAP;
+    z += gap + extraGap;
   }
 
   return obstacles;
