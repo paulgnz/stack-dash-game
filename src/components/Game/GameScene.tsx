@@ -7,6 +7,7 @@ import { Player, playerPositionRef } from "./Player";
 import { Track } from "./Track";
 import { useGameStore } from "../../stores/gameStore";
 import { PostProcessing } from "../Effects/PostProcessing";
+import { DashTrail } from "../Effects/DashTrail";
 import { Environment } from "./Environment";
 import { useScreenEffects } from "../../systems/screenEffects";
 
@@ -54,6 +55,7 @@ export function GameScene() {
         <CameraFollow />
         <Player />
         <Track />
+        <DashTrail />
       </Physics>
     </Suspense>
   );
