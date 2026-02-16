@@ -1,7 +1,7 @@
 {
-  "name": "Stack Dash",
-  "short_name": "StackDash",
-  "description": "Stack blocks while auto-running. Go tall for points!",
+  "name": "Neon Dash",
+  "short_name": "NeonDash",
+  "description": "3-lane endless runner with combo chains. Dodge obstacles, chain near-misses, go viral!",
   "start_url": "/",
   "display": "fullscreen",
   "orientation": "portrait",
