@@ -64,9 +64,9 @@ export function MainMenu() {
           fontSize: "14px",
         }}
       >
-        <p>Tap to stack blocks under you</p>
-        <p>Bridge gaps, dodge tunnels, go tall for points</p>
-        <p>Higher stack = bigger multiplier, but more wobble!</p>
+        <p>Tap to place blocks ahead of you</p>
+        <p>Bridge gaps to survive, stack tall for bonus points</p>
+        <p>Miss a gap and you fall!</p>
       </div>
     </div>
   );

@@ -79,10 +79,25 @@ export function BlockStack() {
     if (phase !== "playing" || !canPlaceBlock) return;
 
     const playerPos = playerPositionRef.current;
+    const speed = useGameStore.getState().speed;
+
+    // Find the highest existing block near the player's Z position
+    let stackY = 0; // ground level (top of track surface)
+    blockBodiesRef.current.forEach((body) => {
+      const bPos = body.translation();
+      const dz = Math.abs(bPos.z - (playerPos.z - speed * 0.15));
+      const dx = Math.abs(bPos.x - playerPos.x);
+      if (dz < 1.5 && dx < 1.5) {
+        const topY = bPos.y + PHYSICS.blockSize[1];
+        if (topY > stackY) stackY = topY;
+      }
+    });
+
+    // Place block slightly ahead of the player, stacked on existing blocks
     const position: [number, number, number] = [
       playerPos.x,
-      playerPos.y + 2,
-      playerPos.z,
+      stackY + PHYSICS.blockSize[1] / 2,
+      playerPos.z - speed * 0.15, // slightly ahead
     ];
     const newBlock: Block = {
       id: ++blockIdCounter,
@@ -118,9 +133,8 @@ export function BlockStack() {
         <RigidBody
           key={block.id}
           position={block.position}
+          type="fixed"
           colliders="cuboid"
-          mass={PHYSICS.blockMass}
-          restitution={PHYSICS.blockRestitution}
           friction={PHYSICS.blockFriction}
           ref={(body: RapierRigidBody | null) => {
             if (body) {
@@ -129,7 +143,7 @@ export function BlockStack() {
           }}
         >
           <mesh castShadow>
-            <boxGeometry args={[...PHYSICS.blockSize]} />
+            <boxGeometry args={[1, PHYSICS.blockSize[1], 1.2]} />
             <meshStandardMaterial
               color="#ff6600"
               emissive="#ff6600"

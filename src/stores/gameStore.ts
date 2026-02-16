@@ -2,37 +2,54 @@ import { create } from "zustand";
 
 export type GamePhase = "menu" | "playing" | "dead";
 
+export const LANE_WIDTH = 2.5;
+export const BASE_SPEED = 8;
+export const MAX_HP = 3;
+
+const SPEED_INCREMENT = 0.5; // per 100 distance
+
+export function getMultiplier(combo: number): number {
+  if (combo >= 50) return 5;
+  if (combo >= 20) return 3;
+  if (combo >= 10) return 2;
+  if (combo >= 5) return 1.5;
+  return 1;
+}
+
 interface GameState {
   // State
   phase: GamePhase;
   score: number;
   finalScore: number;
   bestScore: number;
-  stackHeight: number;
   speed: number;
   distance: number;
-  canPlaceBlock: boolean;
-  blockCooldownTimer: number;
   seed: number;
+
+  // Runner state
+  hp: number;
+  combo: number;
+  lane: number;
+  isJumping: boolean;
+  isSliding: boolean;
+  isInvulnerable: boolean;
 
   // Actions
   start: () => void;
   die: () => void;
   reset: () => void;
   addScore: (points: number) => void;
-  setStackHeight: (height: number) => void;
   addDistance: (delta: number) => void;
-  placeBlock: () => void;
-  resetBlockCooldown: () => void;
   setSeed: (seed: number) => void;
-}
 
-const BASE_SPEED = 5;
-const SPEED_INCREMENT = 0.5; // per 100 distance
-const BLOCK_COOLDOWN = 0.3; // seconds
-
-function getMultiplier(stackHeight: number): number {
-  return 1 + Math.floor(stackHeight / 5) * 0.5;
+  // Runner actions
+  addCombo: () => void;
+  resetCombo: () => void;
+  hit: () => void;
+  switchLane: (direction: number) => void;
+  setJumping: (v: boolean) => void;
+  setSliding: (v: boolean) => void;
+  setInvulnerable: (v: boolean) => void;
 }
 
 export const useGameStore = create<GameState>((set, get) => ({
@@ -40,23 +57,30 @@ export const useGameStore = create<GameState>((set, get) => ({
   score: 0,
   finalScore: 0,
   bestScore: 0,
-  stackHeight: 0,
   speed: BASE_SPEED,
   distance: 0,
-  canPlaceBlock: true,
-  blockCooldownTimer: 0,
   seed: Date.now(),
+
+  hp: MAX_HP,
+  combo: 0,
+  lane: 0,
+  isJumping: false,
+  isSliding: false,
+  isInvulnerable: false,
 
   start: () =>
     set({
       phase: "playing",
       score: 0,
-      stackHeight: 0,
       speed: BASE_SPEED,
       distance: 0,
-      canPlaceBlock: true,
-      blockCooldownTimer: 0,
       seed: Date.now(),
+      hp: MAX_HP,
+      combo: 0,
+      lane: 0,
+      isJumping: false,
+      isSliding: false,
+      isInvulnerable: false,
     }),
 
   die: () => {
@@ -73,19 +97,20 @@ export const useGameStore = create<GameState>((set, get) => ({
       phase: "menu",
       score: 0,
       finalScore: 0,
-      stackHeight: 0,
       speed: BASE_SPEED,
       distance: 0,
-      canPlaceBlock: true,
-      blockCooldownTimer: 0,
+      hp: MAX_HP,
+      combo: 0,
+      lane: 0,
+      isJumping: false,
+      isSliding: false,
+      isInvulnerable: false,
     }),
 
   addScore: (points: number) => {
-    const multiplier = getMultiplier(get().stackHeight);
+    const multiplier = getMultiplier(get().combo);
     set((s) => ({ score: s.score + Math.round(points * multiplier) }));
   },
-
-  setStackHeight: (height: number) => set({ stackHeight: height }),
 
   addDistance: (delta: number) =>
     set((s) => {
@@ -96,9 +121,29 @@ export const useGameStore = create<GameState>((set, get) => ({
       };
     }),
 
-  placeBlock: () => set({ canPlaceBlock: false, blockCooldownTimer: BLOCK_COOLDOWN }),
-
-  resetBlockCooldown: () => set({ canPlaceBlock: true, blockCooldownTimer: 0 }),
-
   setSeed: (seed: number) => set({ seed }),
+
+  addCombo: () => set((s) => ({ combo: s.combo + 1 })),
+
+  resetCombo: () => set({ combo: 0 }),
+
+  hit: () => {
+    const { hp } = get();
+    const newHp = Math.max(0, hp - 1);
+    set({ hp: newHp, combo: 0 });
+    if (newHp <= 0) {
+      get().die();
+    }
+  },
+
+  switchLane: (direction: number) =>
+    set((s) => ({
+      lane: Math.max(-1, Math.min(1, s.lane + direction)),
+    })),
+
+  setJumping: (v: boolean) => set({ isJumping: v }),
+
+  setSliding: (v: boolean) => set({ isSliding: v }),
+
+  setInvulnerable: (v: boolean) => set({ isInvulnerable: v }),
 }));
