@@ -1,5 +1,6 @@
 import { Canvas } from "@react-three/fiber";
 import { GameScene } from "./components/Game/GameScene";
+import { HUD } from "./components/UI/HUD";
 import { useGameStore } from "./stores/gameStore";
 
 export default function App() {
@@ -23,6 +24,8 @@ export default function App() {
       >
         <GameScene />
       </Canvas>
+
+      {phase === "playing" && <HUD />}
 
       {/* Temporary start button - will be replaced by MainMenu in Task 10 */}
       {phase === "menu" && (
