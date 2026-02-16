@@ -1,17 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { generateObstacles } from "../trackGenerator";
-import type { ObstacleType } from "../trackGenerator";
 
 const VALID_LANES = [-1, 0, 1];
-
-const UNLOCK_THRESHOLDS: Record<ObstacleType, number> = {
-  barrier: 0,
-  low_bar: 0,
-  gap: 50,
-  double_barrier: 100,
-  overhead: 200,
-  moving_barrier: 400,
-};
 
 describe("generateObstacles", () => {
   it("generates obstacles within the requested z range", () => {

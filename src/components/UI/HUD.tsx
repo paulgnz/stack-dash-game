@@ -1,10 +1,11 @@
-import { useGameStore } from "../../stores/gameStore";
+import { useGameStore, getMultiplier } from "../../stores/gameStore";
 
 export function HUD() {
   const score = useGameStore((s) => s.score);
-  const stackHeight = useGameStore((s) => s.stackHeight);
+  const combo = useGameStore((s) => s.combo);
+  const hp = useGameStore((s) => s.hp);
 
-  const multiplier = 1 + Math.floor(stackHeight / 5) * 0.5;
+  const multiplier = getMultiplier(combo);
 
   return (
     <div
@@ -46,17 +47,25 @@ export function HUD() {
         </div>
       )}
 
-      {/* Stack height indicator */}
+      {/* HP and Combo */}
       <div
         style={{
           position: "absolute",
           right: 16,
-          top: 80,
+          top: 16,
           fontSize: "14px",
-          opacity: 0.6,
+          opacity: 0.8,
+          textAlign: "right",
         }}
       >
-        {stackHeight}m
+        <div style={{ fontSize: "18px" }}>
+          {"<3 ".repeat(hp)}
+        </div>
+        {combo > 0 && (
+          <div style={{ color: "#00ffcc", marginTop: 4 }}>
+            Combo: {combo}
+          </div>
+        )}
       </div>
     </div>
   );
