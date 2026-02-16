@@ -48,7 +48,7 @@ export function DeathScreen() {
       }}
     >
       {isNewBest && (
-        <div style={{ fontSize: "20px", color: "#ff6600", fontWeight: 700 }}>
+        <div style={{ fontSize: "20px", color: "#00ffcc", fontWeight: 700 }}>
           NEW BEST!
         </div>
       )}

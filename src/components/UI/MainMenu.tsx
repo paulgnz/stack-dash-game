@@ -24,12 +24,12 @@ export function MainMenu() {
           fontSize: "56px",
           fontWeight: 900,
           letterSpacing: "-2px",
-          background: "linear-gradient(135deg, #00ffcc, #ff6600)",
+          background: "linear-gradient(135deg, #00ffcc, #ff00ff)",
           WebkitBackgroundClip: "text",
           WebkitTextFillColor: "transparent",
         }}
       >
-        STACK DASH
+        NEON DASH
       </h1>
 
       {bestScore > 0 && (
@@ -64,9 +64,10 @@ export function MainMenu() {
           fontSize: "14px",
         }}
       >
-        <p>Tap to place blocks ahead of you</p>
-        <p>Bridge gaps to survive, stack tall for bonus points</p>
-        <p>Miss a gap and you fall!</p>
+        <p>Tap left/right to switch lanes</p>
+        <p>Tap center to jump, swipe down to slide</p>
+        <p>Arrow keys / WASD + Space on desktop</p>
+        <p>Chain near-misses for combo multipliers!</p>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useGameStore, getMultiplier } from "../../stores/gameStore";
+import { useGameStore, getMultiplier, MAX_HP } from "../../stores/gameStore";
 
 export function HUD() {
   const score = useGameStore((s) => s.score);
@@ -6,6 +6,9 @@ export function HUD() {
   const hp = useGameStore((s) => s.hp);
 
   const multiplier = getMultiplier(combo);
+
+  const comboColor =
+    combo >= 20 ? "#ff00ff" : combo >= 10 ? "#ffaa00" : "#00ffcc";
 
   return (
     <div
@@ -26,46 +29,55 @@ export function HUD() {
           fontSize: "48px",
           fontWeight: 800,
           textAlign: "center",
-          textShadow: "0 2px 10px rgba(0,255,204,0.5)",
+          textShadow: "0 2px 10px rgba(255,255,255,0.5)",
         }}
       >
         {score}
       </div>
 
-      {/* Multiplier */}
-      {multiplier > 1 && (
+      {/* Combo counter */}
+      {combo > 0 && (
         <div
           style={{
             fontSize: "20px",
             fontWeight: 700,
             textAlign: "center",
-            color: "#ff6600",
-            textShadow: "0 2px 8px rgba(255,102,0,0.5)",
+            color: comboColor,
+            textShadow: `0 2px 8px ${comboColor}`,
           }}
         >
-          x{multiplier.toFixed(1)}
+          {combo}x COMBO ({multiplier.toFixed(1)}x)
         </div>
       )}
 
-      {/* HP and Combo */}
+      {/* HP Hearts */}
       <div
         style={{
           position: "absolute",
           right: 16,
           top: 16,
-          fontSize: "14px",
-          opacity: 0.8,
-          textAlign: "right",
+          display: "flex",
+          gap: "6px",
+          fontSize: "24px",
         }}
       >
-        <div style={{ fontSize: "18px" }}>
-          {"<3 ".repeat(hp)}
-        </div>
-        {combo > 0 && (
-          <div style={{ color: "#00ffcc", marginTop: 4 }}>
-            Combo: {combo}
-          </div>
-        )}
+        {Array.from({ length: MAX_HP }, (_, i) => {
+          const isFull = i < hp;
+          return (
+            <span
+              key={i}
+              style={{
+                opacity: isFull ? 1 : 0.2,
+                filter: isFull
+                  ? "drop-shadow(0 0 6px rgba(255,0,0,0.8))"
+                  : "none",
+                color: "#ff0000",
+              }}
+            >
+              {"\u2665"}
+            </span>
+          );
+        })}
       </div>
     </div>
   );
