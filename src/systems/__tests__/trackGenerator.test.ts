@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { generateTrackSegments, TrackSegment } from "../trackGenerator";
+import { generateTrackSegments } from "../trackGenerator";
 
 describe("trackGenerator", () => {
   it("generates deterministic segments from same seed", () => {
