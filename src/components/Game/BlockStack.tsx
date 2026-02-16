@@ -4,6 +4,10 @@ import { RigidBody, type RapierRigidBody } from "@react-three/rapier";
 import { useGameStore } from "../../stores/gameStore";
 import { PHYSICS } from "../../systems/physicsConfig";
 import { playerPositionRef } from "./Player";
+import { audio } from "../../systems/audioSystem";
+import { useBlockPlaceEffect, BlockParticles } from "../Effects/BlockPlaceEffect";
+import { useCollapseEffect, CollapseParticles } from "../Effects/CollapseEffect";
+import { useReplayStore } from "../../stores/replayStore";
 
 interface Block {
   id: number;
@@ -23,14 +27,29 @@ export function BlockStack() {
   const resetBlockCooldown = useGameStore((s) => s.resetBlockCooldown);
   const setStackHeight = useGameStore((s) => s.setStackHeight);
 
-  // Reset blocks when game resets
+  const {
+    particles: blockParticles,
+    setParticles: setBlockParticles,
+    emit: emitBlockParticles,
+  } = useBlockPlaceEffect();
+
+  const {
+    particles: collapseParticles,
+    setParticles: setCollapseParticles,
+    emit: _emitCollapseParticles,
+  } = useCollapseEffect();
+
+  // Reset blocks, particles, and replay store when game resets
   useEffect(() => {
     if (phase === "menu") {
       setBlocks([]);
       blockBodiesRef.current.clear();
       blockIdCounter = 0;
+      setBlockParticles([]);
+      setCollapseParticles([]);
+      useReplayStore.getState().reset();
     }
-  }, [phase]);
+  }, [phase, setBlockParticles, setCollapseParticles]);
 
   // Track cooldown and stack height
   useFrame((_, delta) => {
@@ -58,15 +77,27 @@ export function BlockStack() {
     if (phase !== "playing" || !canPlaceBlock) return;
 
     const playerPos = playerPositionRef.current;
+    const position: [number, number, number] = [
+      playerPos.x,
+      playerPos.y + 2,
+      playerPos.z,
+    ];
     const newBlock: Block = {
       id: ++blockIdCounter,
-      position: [playerPos.x, playerPos.y + 2, playerPos.z],
+      position,
     };
 
     setBlocks((prev) => [...prev, newBlock]);
     placeBlock();
     cooldownRef.current = PHYSICS.placementCooldown;
-  }, [phase, canPlaceBlock, placeBlock]);
+
+    // Audio feedback
+    audio.playBlockPlace(useGameStore.getState().stackHeight);
+    audio.vibrate(20);
+
+    // Particle effect
+    emitBlockParticles(position);
+  }, [phase, canPlaceBlock, placeBlock, emitBlockParticles]);
 
   // Expose the placement function globally for the tap handler
   useEffect(() => {
@@ -105,6 +136,14 @@ export function BlockStack() {
           </mesh>
         </RigidBody>
       ))}
+      <BlockParticles
+        particles={blockParticles}
+        setParticles={setBlockParticles}
+      />
+      <CollapseParticles
+        particles={collapseParticles}
+        setParticles={setCollapseParticles}
+      />
     </group>
   );
 }

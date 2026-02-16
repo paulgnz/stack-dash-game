@@ -1,12 +1,22 @@
+import { useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { GameScene } from "./components/Game/GameScene";
 import { HUD } from "./components/UI/HUD";
 import { MainMenu } from "./components/UI/MainMenu";
 import { DeathScreen } from "./components/UI/DeathScreen";
 import { useGameStore } from "./stores/gameStore";
+import { parseChallengeUrl } from "./systems/challengeSystem";
 
 export default function App() {
   const phase = useGameStore((s) => s.phase);
+
+  // Check for challenge URL on mount
+  useEffect(() => {
+    const challenge = parseChallengeUrl(window.location.href);
+    if (challenge) {
+      useGameStore.getState().setSeed(challenge.seed);
+    }
+  }, []);
 
   return (
     <div
