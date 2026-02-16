@@ -4,6 +4,7 @@ import { Physics, RigidBody } from "@react-three/rapier";
 import { Suspense } from "react";
 import { Vector3 } from "three";
 import { Player, playerPositionRef } from "./Player";
+import { BlockStack } from "./BlockStack";
 import { useGameStore } from "../../stores/gameStore";
 
 function CameraFollow() {
@@ -48,6 +49,7 @@ export function GameScene() {
         <directionalLight position={[5, 15, 5]} intensity={1} castShadow />
         <CameraFollow />
         <Player />
+        <BlockStack />
         <Ground />
       </Physics>
     </Suspense>

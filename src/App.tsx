@@ -7,7 +7,14 @@ export default function App() {
   const start = useGameStore((s) => s.start);
 
   return (
-    <div style={{ width: "100%", height: "100%", position: "relative" }}>
+    <div
+      style={{ width: "100%", height: "100%", position: "relative" }}
+      onPointerDown={() => {
+        if (useGameStore.getState().phase === "playing") {
+          (window as unknown as Record<string, (() => void) | undefined>).__stackDashPlaceBlock?.();
+        }
+      }}
+    >
       <Canvas
         camera={{ position: [0, 8, 12], fov: 50 }}
         style={{ background: "#0a0a0f" }}
