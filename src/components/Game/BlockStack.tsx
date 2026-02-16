@@ -39,15 +39,17 @@ export function BlockStack() {
     emit: _emitCollapseParticles,
   } = useCollapseEffect();
 
-  // Reset blocks, particles, and replay store when game resets
+  // Reset blocks, particles, and replay store when game resets or starts
   useEffect(() => {
-    if (phase === "menu") {
+    if (phase === "menu" || phase === "playing") {
       setBlocks([]);
       blockBodiesRef.current.clear();
       blockIdCounter = 0;
       setBlockParticles([]);
       setCollapseParticles([]);
-      useReplayStore.getState().reset();
+      if (phase === "menu") {
+        useReplayStore.getState().reset();
+      }
     }
   }, [phase, setBlockParticles, setCollapseParticles]);
 

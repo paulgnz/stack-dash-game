@@ -47,7 +47,7 @@ export function GameScene() {
     <Suspense fallback={null}>
       <Environment />
       <PostProcessing />
-      <Physics gravity={[0, -20, 0]}>
+      <Physics gravity={[0, -40, 0]}>
         <ambientLight intensity={0.3} />
         <directionalLight position={[5, 15, 5]} intensity={1} castShadow />
         <CameraFollow />

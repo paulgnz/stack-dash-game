@@ -63,7 +63,7 @@ export function Player() {
     }
 
     // Die if fallen below the track (prevent multiple triggers)
-    if (pos.y < -5 && !hasDeathTriggered.current) {
+    if (pos.y < -2 && !hasDeathTriggered.current) {
       hasDeathTriggered.current = true;
 
       // Audio feedback
@@ -86,14 +86,15 @@ export function Player() {
       ref={rigidBody}
       position={[0, 2, 0]}
       colliders="ball"
-      mass={1}
+      mass={2}
       linearDamping={0}
       angularDamping={0.5}
       lockRotations
+      ccd
       name="player"
     >
       <mesh castShadow>
-        <sphereGeometry args={[0.4, 32, 32]} />
+        <sphereGeometry args={[0.35, 32, 32]} />
         <meshStandardMaterial
           color="#00ffcc"
           emissive="#00ffcc"
