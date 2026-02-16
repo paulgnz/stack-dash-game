@@ -32,6 +32,7 @@ export function DeathScreen() {
 
   return (
     <div
+      onPointerDown={(e) => e.stopPropagation()}
       style={{
         position: "absolute",
         inset: 0,

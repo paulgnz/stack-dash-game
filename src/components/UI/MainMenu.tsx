@@ -6,6 +6,7 @@ export function MainMenu() {
 
   return (
     <div
+      onPointerDown={(e) => e.stopPropagation()}
       style={{
         position: "absolute",
         inset: 0,
@@ -51,6 +52,22 @@ export function MainMenu() {
       >
         PLAY
       </button>
+
+      <div
+        style={{
+          marginTop: "16px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "8px",
+          opacity: 0.4,
+          fontSize: "14px",
+        }}
+      >
+        <p>Tap to stack blocks under you</p>
+        <p>Bridge gaps, dodge tunnels, go tall for points</p>
+        <p>Higher stack = bigger multiplier, but more wobble!</p>
+      </div>
     </div>
   );
 }

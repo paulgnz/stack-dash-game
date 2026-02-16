@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import { RigidBody, type RapierRigidBody } from "@react-three/rapier";
 import { Vector3 } from "three";
@@ -13,11 +13,24 @@ export const playerPositionRef = { current: new Vector3() };
 export function Player() {
   const rigidBody = useRef<RapierRigidBody>(null);
   const frameCount = useRef(0);
+  const hasDeathTriggered = useRef(false);
   const speed = useGameStore((s) => s.speed);
   const phase = useGameStore((s) => s.phase);
   const addDistance = useGameStore((s) => s.addDistance);
   const addScore = useGameStore((s) => s.addScore);
   const die = useGameStore((s) => s.die);
+
+  // Reset player position when game starts
+  useEffect(() => {
+    if (phase === "playing" && rigidBody.current) {
+      rigidBody.current.setTranslation({ x: 0, y: 2, z: 0 }, true);
+      rigidBody.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
+      rigidBody.current.setAngvel({ x: 0, y: 0, z: 0 }, true);
+      playerPositionRef.current.set(0, 2, 0);
+      hasDeathTriggered.current = false;
+      frameCount.current = 0;
+    }
+  }, [phase]);
 
   useFrame((state, delta) => {
     if (phase !== "playing" || !rigidBody.current) return;
@@ -49,8 +62,10 @@ export function Player() {
       });
     }
 
-    // Die if fallen below the track
-    if (pos.y < -5) {
+    // Die if fallen below the track (prevent multiple triggers)
+    if (pos.y < -5 && !hasDeathTriggered.current) {
+      hasDeathTriggered.current = true;
+
       // Audio feedback
       audio.playCollapse();
       audio.vibrate([50, 30, 100]);
