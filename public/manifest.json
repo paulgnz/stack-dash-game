@@ -1,0 +1,11 @@
+{
+  "name": "Stack Dash",
+  "short_name": "StackDash",
+  "description": "Stack blocks while auto-running. Go tall for points!",
+  "start_url": "/",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#0a0a0f",
+  "theme_color": "#00ffcc",
+  "icons": []
+}

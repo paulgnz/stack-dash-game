@@ -1,15 +1,33 @@
+import { useState } from "react";
 import { useGameStore } from "../../stores/gameStore";
+import { shareScore, getChallengeUrl } from "../../systems/shareSystem";
 
 export function DeathScreen() {
   const finalScore = useGameStore((s) => s.finalScore);
   const bestScore = useGameStore((s) => s.bestScore);
+  const seed = useGameStore((s) => s.seed);
   const reset = useGameStore((s) => s.reset);
   const start = useGameStore((s) => s.start);
   const isNewBest = finalScore >= bestScore && finalScore > 0;
+  const [challengeCopied, setChallengeCopied] = useState(false);
 
   const handleRetry = () => {
     reset();
     start();
+  };
+
+  const handleShare = () => {
+    void shareScore(finalScore, seed);
+  };
+
+  const handleChallenge = () => {
+    const url = getChallengeUrl(seed, finalScore);
+    void navigator.clipboard.writeText(url).then(() => {
+      setChallengeCopied(true);
+      setTimeout(() => setChallengeCopied(false), 1500);
+    }).catch(() => {
+      // Clipboard not available
+    });
   };
 
   return (
@@ -58,6 +76,7 @@ export function DeathScreen() {
 
       <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
         <button
+          onClick={handleShare}
           style={{
             padding: "12px 24px",
             fontSize: "14px",
@@ -71,6 +90,7 @@ export function DeathScreen() {
           Share
         </button>
         <button
+          onClick={handleChallenge}
           style={{
             padding: "12px 24px",
             fontSize: "14px",
@@ -81,7 +101,7 @@ export function DeathScreen() {
             cursor: "pointer",
           }}
         >
-          Challenge
+          {challengeCopied ? "Copied!" : "Challenge"}
         </button>
       </div>
     </div>
